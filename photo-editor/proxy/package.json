@@ -1,18 +1,19 @@
 {
   "name": "ai-photo-editor-proxy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Minimal Gemini image-editing proxy for the AI Photo Editor.",
+  "description": "Minimal Qwen-Image-Edit-2511 proxy for the AI Photo Editor.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "check": "node --check src/index.js && node --check src/gemini.js"
+    "check": "node --check src/index.js && node --check src/imageEditor.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "replicate": "^1.4.0"
   }
 }

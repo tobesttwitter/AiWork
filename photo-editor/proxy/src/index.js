@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
-const { editImage } = require('./gemini');
+const { editImage } = require('./imageEditor');
 
 const app = express();
 const port = Number(process.env.PORT || 8080);

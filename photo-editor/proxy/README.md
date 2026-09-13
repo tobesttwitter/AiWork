@@ -1,84 +1,37 @@
 # AI Photo Editor Proxy
 
-Minimal Node.js/Express server that accepts an image + editing prompt, calls Google's Gemini image model, and returns the generated image.
+This proxy accepts POST /edit, runs Qwen-Image-Edit-2511 through Replicate, and returns the generated image.
 
-## Why a proxy?
+Qwen-Image-Edit-2511 is Apache-2.0 licensed. The model is open-source, but hosted inference is not free. Replicate currently lists $0.03 per output image; Runpod currently lists $0.02 per request. Verify current pricing before deployment.
 
-The Gemini API key must remain server-side. A Flutter APK/IPA cannot safely hide a secret key. The mobile app therefore knows only the proxy URL.
+## Setup
 
-## Requirements
+Requirements: Node.js 20+ and a Replicate API token.
 
-- Node.js 20+
-- A Gemini API key from Google AI Studio.
-- A deployed HTTPS URL if the mobile app is used outside the local network.
+    npm install
+    cp .env.example .env
+    npm start
 
-Google's current Gemini documentation lists `gemini-2.5-flash-image` as a stable image model for image/text input and image/text output. The current pricing page lists this model without a free tier, so verify current pricing before use.
-
-## Local setup
-
-```bash
-npm install
-cp .env.example .env
-# Edit .env and set GEMINI_API_KEY.
-npm start
-```
-
-The server listens on `PORT` (default `8080`).
+Set REPLICATE_API_TOKEN in .env. Never put it in the Flutter app or source control.
 
 ## API
 
-### POST /edit
+The external API is unchanged:
 
-Request:
+POST /edit
+Request: { prompt, image_base64, mime_type }
+Response: { image_base64, mime_type }
 
-```json
-{
-  "prompt": "Remove the background and replace it with a beach.",
-  "image_base64": "<base64>",
-  "mime_type": "image/jpeg"
-}
-```
+The proxy passes the input image to Replicate as a Node.js Buffer, avoiding the need to publish the user's source image. Replicate returns a temporary output URL; the proxy downloads it and converts it back to base64.
 
-Successful response:
+## Security
 
-```json
-{
-  "image_base64": "<base64>",
-  "mime_type": "image/png"
-}
-```
+10 requests/minute/IP, 10 MB JSON body limit, optional PROXY_BEARER_TOKEN, no image logging, database, analytics, cache, or retries.
 
-The implementation uses the current Gemini REST field names (`inlineData`, `mimeType`) and requests image-only output. The response parser accepts both camelCase and legacy snake_case variants so a harmless API representation change is less likely to break the MVP.
+## Self-hosting / $0 inference
 
-## Security behavior
+For genuinely zero hosted-inference cost, self-host Qwen-Image-Edit-2511 on GPU hardware or a free GPU environment when available. The official model is available on Hugging Face under Apache-2.0 and has a Diffusers pipeline. The model is large, so this is substantially more demanding than the hosted MVP.
 
-- API key is read only from `GEMINI_API_KEY`.
-- `.env` and `node_modules` are ignored.
-- Request bodies are never logged.
-- Per-IP in-memory limit: 10 requests/minute.
-- JSON body limit: 10 MB.
-- Optional `PROXY_BEARER_TOKEN` can protect the endpoint.
-- No database, accounts, analytics, caching, retries, or image persistence.
+## Known limits
 
-The in-memory rate limit resets when the process restarts and is not suitable as the only production abuse control.
-
-## Deployment
-
-Deploy this directory as a Node.js web service on a platform that supports Node 20+, such as Render or Fly.io. Availability and pricing of free tiers change, so check the provider's current plan.
-
-Set:
-- `GEMINI_API_KEY`
-- optionally `PROXY_BEARER_TOKEN`
-- optionally `PORT` (most hosts provide their own port)
-
-Then point the Flutter app's `PROXY_URL` at the deployed HTTPS service, for example `https://your-service.example.com`.
-
-## Manual test
-
-Edit `test.http` with a real base64 image and run it with an HTTP client, or use curl:
-
-```bash
-curl -X POST http://localhost:8080/edit \
-  -H 'Content-Type: application/json' \
-  -d '{"prompt":"Make the sky a dramatic sunset.","image_base64":"...","mime_type":"image/jpeg"}'
-```
+Hosted inference costs money. Internet and a running proxy are required. Generated output URLs are temporary, so the proxy downloads results immediately.
