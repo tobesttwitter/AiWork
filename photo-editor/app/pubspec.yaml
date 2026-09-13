@@ -1,0 +1,26 @@
+name: ai_photo_editor
+description: Thin-client AI photo editor using a small Gemini proxy.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_dotenv: ^6.0.1
+  gal: ^2.3.3
+  http: ^1.6.0
+  image_picker: ^1.2.3
+  share_plus: ^13.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env

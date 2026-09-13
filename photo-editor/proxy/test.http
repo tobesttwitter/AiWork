@@ -1,0 +1,12 @@
+### Health
+GET http://localhost:8080/health
+
+### Edit
+POST http://localhost:8080/edit
+Content-Type: application/json
+
+{
+  "prompt": "Make the sky a dramatic sunset.",
+  "image_base64": "REPLACE_WITH_BASE64_IMAGE",
+  "mime_type": "image/jpeg"
+}
