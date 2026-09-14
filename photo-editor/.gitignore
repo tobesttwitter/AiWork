@@ -1,6 +1,0 @@
-# Keep project-local secrets and generated dependencies out of Git.
-photo-editor/proxy/.env
-photo-editor/proxy/node_modules/
-photo-editor/app/.env
-photo-editor/app/.dart_tool/
-photo-editor/app/build/
